@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Sherwood Chess</title>
+  <meta name="description" content="3D chess on an ancient tree stump in Sherwood Forest — play a friend, challenge the computer, or learn with interactive lessons." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "./vendor/three/three.module.min.js",
+        "three/addons/": "./vendor/three/addons/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id="app">
+    <div id="loading" class="screen show">
+      <div class="loading-inner">
+        <div class="crest">♞</div>
+        <h1>Sherwood Chess</h1>
+        <p class="fell" id="loading-text">Gathering the outlaws…</p>
+        <div class="bar"><span id="loading-bar"></span></div>
+      </div>
+    </div>
+
+    <!-- Main menu -->
+    <div id="menu" class="screen">
+      <div class="menu-inner">
+        <div class="title-block">
+          <div class="crest">♞</div>
+          <h1>Sherwood Chess</h1>
+          <p class="fell subtitle">A game of kings beneath the greenwood</p>
+        </div>
+        <div class="menu-buttons">
+          <button class="btn big" data-action="setup-ai"><span class="ico">🏹</span> Play the Computer</button>
+          <button class="btn big" data-action="setup-pvp"><span class="ico">⚔️</span> Two Players</button>
+          <button class="btn big" data-action="lessons"><span class="ico">📜</span> Learn to Play</button>
+          <button class="btn" data-action="settings"><span class="ico">⚙️</span> Settings</button>
+        </div>
+        <p class="fell hint-line">Drag to look around · Scroll or pinch to zoom</p>
+      </div>
+    </div>
+
+    <!-- Game setup -->
+    <div id="setup" class="screen">
+      <div class="panel parchment setup-panel">
+        <h2 id="setup-title">Play the Computer</h2>
+        <div class="setup-section" id="setup-ai-only">
+          <h3>Play as</h3>
+          <div class="seg" id="side-seg">
+            <button data-side="w" class="on">♔ White</button>
+            <button data-side="r">🎲 Random</button>
+            <button data-side="b">♚ Black</button>
+          </div>
+          <h3>Opponent</h3>
+          <div class="levels" id="level-list"></div>
+        </div>
+        <div class="setup-section" id="setup-pvp-only">
+          <label class="check"><input type="checkbox" id="opt-rotate" /> Turn the view toward the player whose move it is</label>
+        </div>
+        <h3>Piece set</h3>
+        <div class="sets" id="set-list"></div>
+        <div class="row end">
+          <button class="btn ghost" data-action="back">Back</button>
+          <button class="btn primary" data-action="start">Begin the Game</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings -->
+    <div id="settings" class="screen">
+      <div class="panel parchment setup-panel">
+        <h2>Settings</h2>
+        <label class="check"><input type="checkbox" id="opt-sound" checked /> Forest sounds &amp; effects</label>
+        <label class="check"><input type="checkbox" id="opt-legal" checked /> Show legal moves when a piece is selected</label>
+        <label class="check"><input type="checkbox" id="opt-rotate2" /> Two players: turn the view each move</label>
+        <h3>Graphics</h3>
+        <div class="seg" id="quality-seg">
+          <button data-q="low">Fast</button>
+          <button data-q="high">Beautiful</button>
+        </div>
+        <p class="small fell">Changing graphics quality reloads the forest.</p>
+        <h3>Piece set</h3>
+        <div class="sets" id="set-list-2"></div>
+        <div class="row end"><button class="btn primary" data-action="back">Done</button></div>
+      </div>
+    </div>
+
+    <!-- In-game HUD -->
+    <div id="hud" class="hidden">
+      <div id="status-card" class="panel parchment">
+        <div class="turn-row"><span class="chip" id="turn-chip"></span><span id="turn-text">White to move</span></div>
+        <div id="status-text" class="fell"></div>
+        <div id="thinking" class="hidden"><span class="spinner"></span> The computer is thinking…</div>
+      </div>
+      <div id="side-panel" class="panel parchment">
+        <div class="side-head"><h3>Moves</h3><span id="opponent-label" class="small"></span></div>
+        <ol id="move-list"></ol>
+        <div class="captured"><div id="cap-w"></div><div id="cap-b"></div></div>
+      </div>
+      <div id="toolbar">
+        <button class="tool" data-action="menu" title="Main menu">☰<span>Menu</span></button>
+        <button class="tool" data-action="new" title="New game">↻<span>New</span></button>
+        <button class="tool" data-action="undo" title="Take back">↶<span>Undo</span></button>
+        <button class="tool" data-action="hint" title="Suggest a move">💡<span>Hint</span></button>
+        <button class="tool" data-action="flip" title="Rotate view">⟲<span>View</span></button>
+        <button class="tool" data-action="pieces" title="Change pieces">♜<span>Pieces</span></button>
+        <button class="tool" data-action="sound" title="Sound" id="sound-btn">🔊<span>Sound</span></button>
+      </div>
+    </div>
+
+    <!-- Tutorial -->
+    <div id="tutorial" class="hidden">
+      <div id="lesson-card" class="panel parchment">
+        <div class="lesson-top">
+          <span id="lesson-chapter" class="small"></span>
+          <button class="icon-btn" data-action="lessons" title="All lessons">☰</button>
+        </div>
+        <h2 id="lesson-title"></h2>
+        <div id="lesson-intro" class="fell"></div>
+        <div id="lesson-goal"></div>
+        <div id="lesson-progress"></div>
+        <div id="lesson-feedback" class="fell"></div>
+        <div class="row">
+          <button class="btn small" data-action="lesson-hint">💡 Hint</button>
+          <button class="btn small" data-action="lesson-restart">↻ Restart</button>
+          <button class="btn small ghost" data-action="lesson-collapse" id="collapse-btn">▾ Hide</button>
+        </div>
+        <div class="row nav">
+          <button class="btn small ghost" data-action="lesson-prev">‹ Prev</button>
+          <button class="btn small primary" data-action="lesson-next" id="next-btn">Next ›</button>
+        </div>
+      </div>
+      <div id="tutorial-tools">
+        <button class="tool" data-action="menu" title="Main menu">☰<span>Menu</span></button>
+        <button class="tool" data-action="flip" title="Rotate view">⟲<span>View</span></button>
+        <button class="tool" data-action="pieces" title="Change pieces">♜<span>Pieces</span></button>
+        <button class="tool" data-action="sound" title="Sound">🔊<span>Sound</span></button>
+      </div>
+    </div>
+
+    <!-- Lesson index -->
+    <div id="lessons" class="screen">
+      <div class="panel parchment lessons-panel">
+        <div class="row between"><h2>Learn to Play</h2><button class="btn ghost small" data-action="back">✕ Close</button></div>
+        <p class="fell">Every lesson is hands-on: move the pieces yourself, collect stars, escape checks and deliver checkmates.
+          Your progress is saved in this browser.</p>
+        <div id="lesson-progress-total" class="small"></div>
+        <div id="chapter-list"></div>
+      </div>
+    </div>
+
+    <!-- Generic modal -->
+    <div id="modal" class="hidden">
+      <div class="panel parchment modal-box" id="modal-box"></div>
+    </div>
+
+    <div id="toasts"></div>
+  </div>
+  <noscript>Sherwood Chess needs JavaScript and WebGL.</noscript>
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>

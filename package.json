@@ -1,0 +1,12 @@
+{
+  "name": "sherwood-chess",
+  "version": "1.0.0",
+  "description": "3D chess on a tree stump in Sherwood Forest, built with three.js",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "test": "node tests/perft.test.mjs && node tests/ai.test.mjs && node tests/lessons.test.mjs"
+  },
+  "license": "MIT"
+}
